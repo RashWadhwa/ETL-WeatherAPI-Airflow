@@ -9,7 +9,7 @@ The pipeline extracts weather data from Open-Meteo, transforms key weather field
 Validation was completed in both Airflow UI and DBeaver.
 
 ## Why Apache Airflow (Open Source)
-Apache Airflow is an open-source workflow orchestration platform used to schedule, manage, and monitor data pipelines.
+Apache Airflow is an open-source workflow orchestration platform for scheduling, managing, and monitoring data pipelines.
 It is useful for:
 - Creating repeatable ETL workflows
 - Scheduling and automating pipeline runs
@@ -46,7 +46,7 @@ ETL-WeatherAPI-Airflow/
 └── README.md
 ```
 
-### Step 2: Initialize the Airflow Project Commands:
+### Step 2: Initialise the Airflow Project Commands:
 astro dev init
 astro dev start
 
@@ -58,7 +58,7 @@ Expected services:
 - API Server
 - Triggerer
 
-![verifiedInDockerDesktop](images\newLinkPopulatedForServer.png)
+![verifiedInDockerDesktop](images/newLinkPopulatedForServer.png)
 
 ### Step 4: Open Airflow UI and Verify DAG Visibility:
 Expected result:
@@ -94,7 +94,7 @@ FROM weather_data
 ORDER BY timestamp DESC;
 
 Expected result:
-- New weather records are present in weather_data table
+- New weather records are present in the weather_data table
 
 Screenshot:
 ![DBeaver query result](images/oneRecordInDBeaver.png)
@@ -114,7 +114,7 @@ Screenshot:
 
 ## Issues Faced and Fixes:
 1. Issue: DAG was not appearing in the Airflow UI.
-   Fix: Resolved DAG import and dependency issues, then restarted Astro environment.
+   Fix: Resolved DAG import and dependency issues, then restarted the Astro environment.
 
 2. Issue: Provider-related import errors for HTTP and PostgreSQL hooks.
    Fix: Added required Airflow provider dependencies to project requirements.
@@ -123,7 +123,7 @@ Screenshot:
    Fix: Restarted Astro services so containers rebuilt with updated dependencies.
 
 4. Issue: Confusion about API keys.
-   Fix: Open-Meteo endpoint used in this pipeline does not require API keys for the implemented request.
+   Fix: The Open-Meteo endpoint used in this pipeline does not require API keys for the implemented request.
 
 ## Achieved Outcomes:
 - Built and ran a complete ETL workflow locally
