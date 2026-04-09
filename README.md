@@ -1,45 +1,143 @@
-Overview
-========
+# Weather ETL Pipeline Showcase
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+Author: RP Wadhwa  
+Date: April 8, 2026
 
-Project Contents
-================
+## Project Overview
+This project demonstrates an end-to-end ETL pipeline using Apache Airflow and Astro CLI.
+The pipeline extracts weather data from Open-Meteo, transforms key weather fields, and loads the results into PostgreSQL.
+Validation was completed in both Airflow UI and DBeaver.
 
-Your Astro project contains the following files and folders:
+## Why Apache Airflow (Open Source)
+Apache Airflow is an open-source workflow orchestration platform used to schedule, manage, and monitor data pipelines.
+It is useful for:
+- Creating repeatable ETL workflows
+- Scheduling and automating pipeline runs
+- Monitoring task-level execution and failures
+- Building production-style data engineering projects locally
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+## Architecture and Tools
+- Orchestration: Apache Airflow (via Astro Runtime)
+- Local orchestration environment: Astro CLI + Docker
+- Source API: Open-Meteo
+- Destination: PostgreSQL
+- Query and validation tool: DBeaver
 
-Deploy Your Project Locally
-===========================
+## Step-by-Step Execution Log
 
-Start Airflow on your local machine by running 'astro dev start'.
+### Step 1: Install Astro CLI Command:
+winget install -e --id Astronomer.Astro
 
-This command will spin up five Docker containers on your machine, each for a different Airflow component:
+Note: After installation, restart VS Code before running Astro project commands.
 
-- Postgres: Airflow's Metadata Database
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- DAG Processor: The Airflow component responsible for parsing DAGs
-- API Server: The Airflow component responsible for serving the Airflow UI and API
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+After running `astro dev init`, Astro automatically populates the initial project structure:
 
-When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
+```text
+ETL-WeatherAPI-Airflow/
+├── dags/
+├── include/
+├── plugins/
+├── tests/
+│   └── dags/
+├── airflow_settings.yaml
+├── Dockerfile
+├── packages.txt
+├── requirements.txt
+└── README.md
+```
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+### Step 2: Initialize the Airflow Project Commands:
+astro dev init
+astro dev start
 
-Deploy Your Project to Astronomer
-=================================
+### Step 3: Verify Airflow Containers in Docker Desktop:
+Expected services:
+- Postgres
+- Scheduler
+- DAG Processor
+- API Server
+- Triggerer
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+![verifiedInDockerDesktop](images\newLinkPopulatedForServer.png)
 
-Contact
-=======
+### Step 4: Open Airflow UI and Verify DAG Visibility:
+Expected result:
+- weather_etl_pipeline is visible in the DAG list
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+Screenshot:
+![DAG visible in Airflow UI](images/pipelineAppeared.png)
+
+### Step 5: Trigger the Weather ETL Pipeline:
+Expected result:
+- Tasks run in order: extract, transform, load
+- DAG run completes successfully
+
+Additional run scheduling view:
+![Schedule and tabs view](images/tabsSchedule.png)
+
+Screenshot:
+![Step 5 - DAG run successful](images/ranSuccessfully.png)
+
+### Step 6: Review Task-Level Logs:
+Expected result:
+- API response fetched from Open-Meteo
+- Transformed fields prepared
+- Insert statement executed into PostgreSQL
+
+Screenshot:
+![Task logs for ETL steps](images/afterTriggeringFewTimes.png)
+
+### Step 7: Validate Loaded Data in PostgreSQL Using DBeaver:
+Sample validation query:
+SELECT latitude, longitude, temperature, windspeed, winddirection, weathercode, timestamp
+FROM weather_data
+ORDER BY timestamp DESC;
+
+Expected result:
+- New weather records are present in weather_data table
+
+Screenshot:
+![DBeaver query result](images/oneRecordInDBeaver.png)
+
+## SQL Validation in DBeaver:
+Validation checklist:
+- weather_data table exists
+- Pipeline inserts rows after DAG run
+- Weather columns are populated correctly
+- Timestamps are generated on insert
+
+Screenshot:
+![DBeaver validation checklist](images/connectionAdmin.png)
+
+Screenshot:
+![Triggered multiple times](images/real-timeUpdate.png)
+
+## Issues Faced and Fixes:
+1. Issue: DAG was not appearing in the Airflow UI.
+   Fix: Resolved DAG import and dependency issues, then restarted Astro environment.
+
+2. Issue: Provider-related import errors for HTTP and PostgreSQL hooks.
+   Fix: Added required Airflow provider dependencies to project requirements.
+
+3. Issue: Runtime mismatch after dependency changes.
+   Fix: Restarted Astro services so containers rebuilt with updated dependencies.
+
+4. Issue: Confusion about API keys.
+   Fix: Open-Meteo endpoint used in this pipeline does not require API keys for the implemented request.
+
+## Achieved Outcomes:
+- Built and ran a complete ETL workflow locally
+- Orchestrated weather data ingestion and load using Airflow
+- Successfully validated final data in PostgreSQL via DBeaver
+- Captured full evidence from ingestion to load with screenshots
+
+## Documentation Links:
+- Astro CLI installation docs:
+  https://www.astronomer.io/docs/astro/cli/install-cli
+- Open-Meteo API docs:
+  https://open-meteo.com/en/docs?latitude=51.5085&longitude=-0.1257
+- DBeaver download page:
+  https://dbeaver.io/download/
+
+## Potential future Steps:
+- alerts, retries, tests, deployment on AWS
